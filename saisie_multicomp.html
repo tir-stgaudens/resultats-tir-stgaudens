@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LIGUE LR — version v3.10 — 10/09/2026 -->
+<!-- LIGUE LR — version v3.11 — 10/09/2026 -->
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -625,7 +625,7 @@
             </div>
         </div>
         <div class="header-actions">
-            <span class="version-tag">v3.10</span>
+            <span class="version-tag">v3.11</span>
             <button type="button" id="btnToggleImport" class="btn-toggle-import">
                 <span>🪄</span> Import Tireurs
             </button>
@@ -1005,11 +1005,17 @@
     // Même discipline ? Synonymes compris, et nom GÉNÉRIQUE admis : « Carabine 50 m » (sans précision)
     // couvre Carabine 60 BC 50 m et Carabine 3x20 50 m ; « Pistolet 25 m » couvre standard / vitesse / PC.
     const GENERIC = /^(pistolet|carabine)(10|25|50)m$/;
+    // La fusion "générique couvre ses variantes" ne s'applique qu'au 25 m (Pistolet 25 m couvre
+    // Standard/Vitesse/PC) et au 50 m carabine (Carabine 50 m couvre 60 BC/3x20) — PAS au 10 m :
+    // au 10 m, Pistolet 10 m (Précision, mixte avec Carabine 10 m), Pistolet Standard 10 m et
+    // Pistolet Vitesse 10 m sont trois disciplines à part entière, chacune sa propre série, jamais
+    // interchangeables entre elles ni avec le "Pistolet 10 m" générique.
+    const SUBSUMABLE_GENERIC = /^(pistolet|carabine)(25|50)m$/;
     function sameDisc(a, b) {
         const ka = discKey(a), kb = discKey(b);
         if (ka === kb) return true;
-        if (GENERIC.test(ka) && kb.startsWith(ka)) return true;
-        if (GENERIC.test(kb) && ka.startsWith(kb)) return true;
+        if (SUBSUMABLE_GENERIC.test(ka) && kb.startsWith(ka)) return true;
+        if (SUBSUMABLE_GENERIC.test(kb) && ka.startsWith(kb)) return true;
         return false;
     }
     function isGenericDisc(name) { return GENERIC.test(discKey(name)); }
